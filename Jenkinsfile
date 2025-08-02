@@ -1,9 +1,10 @@
 @Library('Shared') _
 pipeline {
-    agent {label 'Node'}
+    agent any
     
     environment{
         SONAR_HOME = tool "Sonar"
+        AWS_REGION = 'ap-south-1'
     }
     
     parameters {
@@ -32,7 +33,7 @@ pipeline {
         stage('Git: Code Checkout') {
             steps {
                 script{
-                    code_checkout("https://github.com/LondheShubham153/Wanderlust-Mega-Project.git","main")
+                    code_checkout("https://github.com/tusharp7677/Wanderlust-Mega-Project.git","main")
                 }
             }
         }
@@ -74,8 +75,8 @@ pipeline {
                 stage("Backend env setup"){
                     steps {
                         script{
-                            dir("Automations"){
-                                sh "bash updatebackendnew.sh"
+                                dir("Automations"){
+                                     sh "bash updatebackendnew.sh"
                             }
                         }
                     }
@@ -84,8 +85,8 @@ pipeline {
                 stage("Frontend env setup"){
                     steps {
                         script{
-                            dir("Automations"){
-                                sh "bash updatefrontendnew.sh"
+                                dir("Automations"){
+                                     sh "bash updatefrontendnew.sh"
                             }
                         }
                     }
@@ -97,11 +98,11 @@ pipeline {
             steps{
                 script{
                         dir('backend'){
-                            docker_build("wanderlust-backend-beta","${params.BACKEND_DOCKER_TAG}","trainwithshubham")
+                            docker_build("wanderlust-backend-beta","${params.BACKEND_DOCKER_TAG}","tusharp1911")
                         }
                     
                         dir('frontend'){
-                            docker_build("wanderlust-frontend-beta","${params.FRONTEND_DOCKER_TAG}","trainwithshubham")
+                            docker_build("wanderlust-frontend-beta","${params.FRONTEND_DOCKER_TAG}","tusharp1911")
                         }
                 }
             }
@@ -110,8 +111,8 @@ pipeline {
         stage("Docker: Push to DockerHub"){
             steps{
                 script{
-                    docker_push("wanderlust-backend-beta","${params.BACKEND_DOCKER_TAG}","trainwithshubham") 
-                    docker_push("wanderlust-frontend-beta","${params.FRONTEND_DOCKER_TAG}","trainwithshubham")
+                    docker_push("wanderlust-backend-beta","${params.BACKEND_DOCKER_TAG}","tusharp1911") 
+                    docker_push("wanderlust-frontend-beta","${params.FRONTEND_DOCKER_TAG}","tusharp1911")
                 }
             }
         }
