@@ -1,6 +1,6 @@
 @Library('Shared') _
 pipeline {
-    agent {label 'Node'}
+    agent any
     
     parameters {
         string(name: 'FRONTEND_DOCKER_TAG', defaultValue: '', description: 'Frontend Docker tag of the image built by the CI job')
@@ -19,7 +19,7 @@ pipeline {
         stage('Git: Code Checkout') {
             steps {
                 script{
-                    code_checkout("https://github.com/LondheShubham153/Wanderlust-Mega-Project.git","main")
+                    code_checkout("https://github.com/tusharp7677/Wanderlust-Mega-Project.git","main")
                 }
             }
         }
@@ -56,20 +56,25 @@ pipeline {
         stage("Git: Code update and push to GitHub"){
             steps{
                 script{
-                    withCredentials([gitUsernamePassword(credentialsId: 'Github-cred', gitToolName: 'Default')]) {
+                    withCredentials([gitUsernamePassword(credentialsId: 'Github_Token', gitToolName: 'Default')]) {
                         sh '''
-                        echo "Checking repository status: "
-                        git status
-                    
-                        echo "Adding changes to git: "
-                        git add .
-                        
-                        echo "Commiting changes: "
-                        git commit -m "Updated environment variables"
-                        
-                        echo "Pushing changes to github: "
-                        git push https://github.com/LondheShubham153/Wanderlust-Mega-Project.git main
-                    '''
+                            echo "Checking repository status: "
+                            git status
+
+                            echo "Adding changes to git: "
+                            git add .
+
+                            echo "Checking if there are changes to commit..."
+                            if ! git diff --cached --quiet; then
+                               echo "Committing changes..."
+                               git commit -m "Updated environment variables"
+
+                               echo "Pushing changes to GitHub..."
+                               git push https://github.com/tusharp7677/Wanderlust-Mega-Project.git main
+                            else
+                               echo "No changes to commit. Skipping push."
+                            fi
+                        '''
                     }
                 }
             }
@@ -79,7 +84,7 @@ pipeline {
         success {
             script {
                 emailext attachLog: true,
-                from: 'trainwithshubham@gmail.com',
+                from: 'tusharp@valueaddsofttech.com',
                 subject: "Wanderlust Application has been updated and deployed - '${currentBuild.result}'",
                 body: """
                     <html>
@@ -96,14 +101,14 @@ pipeline {
                     </body>
                     </html>
             """,
-            to: 'trainwithshubham@gmail.com',
+            to: 'tusharp@valueaddsofttech.com',
             mimeType: 'text/html'
             }
         }
       failure {
             script {
                 emailext attachLog: true,
-                from: 'trainwithshubham@gmail.com',
+                from: 'tusharp@valueaddsofttech.com',
                 subject: "Wanderlust Application build failed - '${currentBuild.result}'",
                 body: """
                     <html>
@@ -117,7 +122,7 @@ pipeline {
                     </body>
                     </html>
             """,
-            to: 'trainwithshubham@gmail.com',
+            to: 'tusharp@valueaddsofttech.com',
             mimeType: 'text/html'
             }
         }
